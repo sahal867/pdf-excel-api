@@ -4,12 +4,13 @@ import re
 from openpyxl import Workbook
 import logging
 import io
+import sys
 
 app = Flask(__name__)
 PDF_PASSWORD = '220165'  # You can make this dynamic if needed
 
 # Logging setup
-logging.basicConfig(filename='removed_rows.log', level=logging.INFO,
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format='%(asctime)s - %(message)s')
 
 # HTML upload form
