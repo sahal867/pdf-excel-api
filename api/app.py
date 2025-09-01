@@ -5,8 +5,10 @@ from openpyxl import Workbook
 import logging
 import io
 import sys
+from flask_cors import CORS # New import for CORS
 
 app = Flask(__name__)
+CORS(app) # New line to enable CORS
 PDF_PASSWORD = '220165'  # You can make this dynamic if needed
 
 # Logging setup

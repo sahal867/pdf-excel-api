@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF to Excel API Test</title>
+</head>
+<body>
+
+    <h2>Test Your Vercel API</h2>
+    <p>Select a PDF file to upload. The API will process it and return an Excel file.</p>
+    
+    <input type="file" id="pdfInput" accept=".pdf">
+    <button onclick="startUpload()">Upload and Convert</button>
+
+    <div id="status"></div>
+
+    <script>
+        // Your JavaScript code will go here
+        async function uploadPdfAndGetExcel(file) {
+          const statusDiv = document.getElementById('status');
+          statusDiv.innerText = "Processing... Please wait.";
+
+          const vercelUrl = 'https://pdf-excel-api-git-main-shabeers-projects-73414f3a.vercel.app/'; // Replace with your Vercel URL
+          const formData = new FormData();
+          formData.append('file', file);
+
+          try {
+            const response = await fetch(vercelUrl, {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (response.ok) {
+              const blob = await response.blob();
+              const downloadUrl = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = downloadUrl;
+              a.download = 'output.xlsx';
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              statusDiv.innerText = "Success! The Excel file is downloading.";
+            } else {
+              statusDiv.innerText = `Error: ${response.status} ${response.statusText}`;
+              const errorText = await response.text();
+              console.error('Error Details:', errorText);
+            }
+          } catch (error) {
+            statusDiv.innerText = `Network or CORS error: ${error.message}`;
+            console.error('Network or CORS error:', error);
+          }
+        }
+
+        // Event handler for the button click
+        function startUpload() {
+          const pdfInput = document.getElementById('pdfInput');
+          const file = pdfInput.files[0];
+          
+          if (file) {
+            uploadPdfAndGetExcel(file);
+          } else {
+            document.getElementById('status').innerText = "Please select a file first.";
+          }
+        }
+    </script>
+
+</body>
+</html>
