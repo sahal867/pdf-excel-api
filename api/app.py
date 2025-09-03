@@ -5,28 +5,40 @@ from openpyxl import Workbook
 import logging
 import io
 import sys
-from flask_cors import CORS # New import for CORS
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app) # New line to enable CORS
-PDF_PASSWORD = '220165'  # You can make this dynamic if needed
+CORS(app)  # Enable CORS for cross-origin requests
+PDF_PASSWORD = '220165'
 
-# Logging setup
+# Logging setup to print to console, which Vercel captures
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format='%(asctime)s - %(message)s')
 
-# HTML upload form
+# HTML upload form for the user to interact with
 UPLOAD_FORM = """
 <!doctype html>
-<title>Upload PDF</title>
-<h2>Upload Mutual Fund PDF</h2>
-<form method=post enctype=multipart/form-data>
-  <input type=file name=file>
-  <input type=submit value=Upload>
-</form>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Mutual Fund PDF</title>
+</head>
+<body>
+    <h2>Upload Mutual Fund PDF</h2>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".pdf">
+        <input type="submit" value="Upload">
+    </form>
+</body>
+</html>
 """
 
 def clean_and_convert_to_number(value):
+    """
+    Cleans a string by removing non-numeric characters and attempts to convert it to a float.
+    Returns the cleaned value and a boolean indicating if the conversion was successful.
+    """
     if value is None:
         return None, False
     cleaned = re.sub(r'[^\d.]', '', str(value))
@@ -36,6 +48,10 @@ def clean_and_convert_to_number(value):
         return value, False
 
 def process_pdf(file_stream, ws, row_counter, password):
+    """
+    Processes a single PDF file stream, extracts data, and writes it to an Excel worksheet.
+    Returns the updated row counter.
+    """
     Fund_Name = ""
     Folio_No = ""
     ISIN = ""
@@ -107,7 +123,6 @@ def upload_file():
         if not uploaded_file or uploaded_file.filename == '':
             return "No file uploaded."
 
-        # Create workbook
         wb = Workbook()
         ws = wb.active
         ws.title = "Sheet1"
@@ -118,7 +133,6 @@ def upload_file():
 
         row_counter = process_pdf(uploaded_file.stream, ws, 0, PDF_PASSWORD)
 
-        # Save to in-memory file
         output = io.BytesIO()
         wb.save(output)
         output.seek(0)
@@ -129,3 +143,33 @@ def upload_file():
 
 if __name__ == '__main__':
     app.run(debug=True)
+```
+eof
+### Next Steps for Deployment
+
+1.  **Save the file:** Save the code above as `app2.py` inside your `api` folder.
+2.  **Update `vercel.json`:** If you are deploying this as a new project, ensure your `vercel.json` file points to `app2.py` as the entry point.
+    ```json
+    {
+      "version": 2,
+      "builds": [
+        {
+          "src": "api/app2.py",
+          "use": "@vercel/python"
+        }
+      ],
+      "routes": [
+        {
+          "src": "/(.*)",
+          "dest": "/api/app2.py"
+        }
+      ]
+    }
+    ```
+3.  **Update `requirements.txt`:** Make sure your `requirements.txt` includes all necessary dependencies:
+    ```
+    Flask
+    pdfplumber
+    openpyxl
+    flask-cors
+    
