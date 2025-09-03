@@ -143,33 +143,3 @@ def upload_file():
 
 if __name__ == '__main__':
     app.run(debug=True)
-```
-eof
-### Next Steps for Deployment
-
-1.  **Save the file:** Save the code above as `app2.py` inside your `api` folder.
-2.  **Update `vercel.json`:** If you are deploying this as a new project, ensure your `vercel.json` file points to `app2.py` as the entry point.
-    ```json
-    {
-      "version": 2,
-      "builds": [
-        {
-          "src": "api/app2.py",
-          "use": "@vercel/python"
-        }
-      ],
-      "routes": [
-        {
-          "src": "/(.*)",
-          "dest": "/api/app2.py"
-        }
-      ]
-    }
-    ```
-3.  **Update `requirements.txt`:** Make sure your `requirements.txt` includes all necessary dependencies:
-    ```
-    Flask
-    pdfplumber
-    openpyxl
-    flask-cors
-    
